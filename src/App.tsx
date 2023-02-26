@@ -74,7 +74,7 @@ const Modal: FunctionComponent<{ message: string, onClick: () => void }> = ({ me
             <div className="bg-white rounded-lg p-8 z-50 justify-center flex flex-col">
                 <p className="text-lg font-bold">{message}</p>
                 <button onClick={onClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mx-auto  flex-1">
-                    Play again
+                    Close
                 </button>
             </div>
         </div>
@@ -97,6 +97,7 @@ const Home: FunctionComponent = () => {
     const [won, setWon] = useState<boolean>(false);
     const [word, setWord] = useState<LowercaseAlphaString>();
     const [playCount, setPlayCount] = useState<number>(0);
+    const [showModal, setShowModal] = useState<boolean>(true);
     const properLengthWords = words.filter(word => word.length == wordLength);
     useEffect(() => {
         setWordList(properLengthWords as LowercaseAlphaString[]);
@@ -156,7 +157,9 @@ const Home: FunctionComponent = () => {
         setDone(false);
         setWon(false);
         setPlayCount((prev) => prev + 1);
+        setShowModal(true)
     }
+    const close = () => setShowModal(false);
 
     return (
         <>
@@ -173,9 +176,10 @@ const Home: FunctionComponent = () => {
                         word={word ? [...word] as LowercaseAlphaString[] : [] as LowercaseAlphaString[]}
                         shakeState={shakeState}
                     />
+                    {done && <button onClick={reset} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mx-auto  flex-1">Play Again</button>}
                     <Keyboard keyMap={keyMap} backspaceHandler={backspace} enterHandler={enter} setGuess={setGuessSafe}/>
                 </div>
-                {done && <Modal message={won ? "You win!" : `You lose 😥 (The word was ${word})`} onClick={reset} />}
+                {done && showModal && <Modal message={won ? "You win!" : `You lose 😥 (The word was ${word})`} onClick={close} />}
             </main>
         </>
     );
