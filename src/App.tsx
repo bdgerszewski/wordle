@@ -1,7 +1,8 @@
 import './App.css'
 import words from './words.json'
 import React, { useState, FunctionComponent, useEffect } from "react";
-import { Grid } from './components/Grid';
+import { CellDimension, Grid } from './components/Grid';
+// import  from '@heroicons/react/solid'
 
 type KeyboardProps = {
     keyMap: LowercaseAlphaMap;
@@ -80,11 +81,47 @@ const Modal: FunctionComponent<{ message: string, onClick: () => void }> = ({ me
         </div>
     );
 };
+type HamburgerMenuProps = {
+    setIsOpen: (isOpen: boolean) => void;
+    wordLength: CellDimension;
+    setWordLength: (wordLength: CellDimension) => void;
+    numGuesses: CellDimension;
+    setNumGuesses: (numGuesses: CellDimension) => void;
+}
+
+const HamburgerMenu: FunctionComponent<HamburgerMenuProps> = ({setIsOpen, wordLength, setWordLength, numGuesses, setNumGuesses}) => {
+    return (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 bg-gray-800 opacity-50"></div>
+        <div className="bg-white rounded-lg p-8 z-50 justify-center flex flex-col">
+            <h2>Word length</h2>
+            <div className="grid grid-flow-col gap-3">
+                {[4,5,6,7,8].map((length) => (
+                <div key={`w${length}`} className="flex flex-col">
+                    <input type="radio" id="option4" name="option" value={length} onChange={() => setWordLength(length as CellDimension)}/>
+                    <label>{length}</label>
+                </div>))}
+            </div>
+            <h2>Number of guesses</h2>
+            <div className="grid grid-flow-col gap-3">
+                {[4,5,6,7,8].map((length) => (
+                <div key={`g${length}`} className="flex flex-col">
+                    <input type="radio" id="option4" name="option" value={length} onChange={() => setNumGuesses(length as CellDimension)}/>
+                    <label>{length}</label>
+                </div>))}
+            </div>
+            <button onClick={() => setIsOpen(false)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mx-auto  flex-1">
+                Close
+            </button>
+        </div>
+    </div>
+    )
+  }
 
 
 const Home: FunctionComponent = () => {
-    const wordLength = 5;
-    const numGuesses = 6;
+    const [wordLength, setWordLength] = useState<CellDimension>(6);
+    const [numGuesses, setNumGuesses] = useState<CellDimension>(6);
     const initKeyMap = lowerCaseAlphaKeyRows
         .flat()
         .reduce((map, char) => ({ ...map, [char]: {color: KeyColor.DefaultKey} }), {} as Record<LowercaseAlphaString, KeyProps>);
@@ -98,13 +135,14 @@ const Home: FunctionComponent = () => {
     const [word, setWord] = useState<LowercaseAlphaString>();
     const [playCount, setPlayCount] = useState<number>(0);
     const [showModal, setShowModal] = useState<boolean>(true);
+    const [showHamburger, setShowHamburger] = useState<boolean>(false);
     const properLengthWords = words.filter(word => word.length == wordLength);
     useEffect(() => {
         setWordList(properLengthWords as LowercaseAlphaString[]);
         const w = properLengthWords[Math.floor(Math.random() * properLengthWords.length)] as LowercaseAlphaString;
         setWord(w)
         console.log(w)
-    }, [playCount]);
+    }, [playCount, wordLength]);
     useEffect(() => {
         document.documentElement.style.setProperty("--vh", window.innerHeight * 0.01 + 'px')
     }, []);
@@ -165,9 +203,16 @@ const Home: FunctionComponent = () => {
         <>
             <main className="flex h-screen bg-black antialiased justify-center overflow-hidden">
                 <div className="container flex flex-col items-center justify-between gap-12 max-w-2xl">
-                    <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] font-letters mt-4">
-                        Wordle?
-                    </h1>
+                    <div className="flex flex-row justify-between items-center w-full">
+                        <button onClick={() => setShowHamburger(true)} className=" text-white text-3xl font-bold self-center ml-3 mt-3">
+                            ⚙️
+                        </button>
+                        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] font-letters mt-4 flex ">
+                            Wordle++
+                        </h1>
+                        <div className="w-10"></div>
+                    </div>
+                    {showHamburger && <HamburgerMenu setIsOpen={setShowHamburger} wordLength={wordLength} setWordLength={setWordLength} numGuesses={numGuesses} setNumGuesses={setNumGuesses} />}
                     <Grid
                         numRows={numGuesses}
                         numCols={wordLength}

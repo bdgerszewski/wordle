@@ -8,13 +8,30 @@ type CellProps = {
     shakeState: string;
 };
 type GridProps = {
-    numRows: number;
-    numCols: number;
+    numRows: CellDimension;
+    numCols: CellDimension;
     history: LowercaseAlphaString[][];
     current: LowercaseAlphaString[];
     word: LowercaseAlphaString[];
     shakeState: string;
 };
+const rowOptions: Record<CellDimension, string> = {
+    4: 'grid-rows-4',
+    5: 'grid-rows-5',
+    6: 'grid-rows-6',
+    7: 'grid-rows-7',
+    8: 'grid-rows-8',
+}
+// with the following map of number of columns to tailwind css class
+const colOptions: Record<CellDimension, string> = {
+    4: 'grid-cols-4',
+    5: 'grid-cols-5',
+    6: 'grid-cols-6',
+    7: 'grid-cols-7',
+    8: 'grid-cols-8',
+}
+// create a typescript type or enum that ensures the number of columns is valid
+export type CellDimension = 4 | 5 | 6 | 7 | 8;
 const Cell: FunctionComponent<CellProps> = ({ value, bgColor, isCurrent, shakeState }) => {
     const animation = isCurrent ? shakeState : '';
     return (
@@ -61,5 +78,5 @@ export const Grid: FunctionComponent<GridProps> = ({ numRows, numCols, history, 
         grid.push(row);
     }
 
-    return <div className={`grid grid-cols-5 grid-rows-6 gap-1.5 justify-end`}>{grid}</div>;
+    return <div className={`grid ${colOptions[numCols]} ${rowOptions[numRows]} gap-1.5 justify-end w-max`}>{grid}</div>;
 };

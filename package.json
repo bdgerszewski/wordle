@@ -10,6 +10,7 @@
     "deploy-prod": "npx wrangler pages publish dist --project-name=wordle --branch=production"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.16",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
