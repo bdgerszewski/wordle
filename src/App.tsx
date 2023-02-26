@@ -171,6 +171,9 @@ const Home: FunctionComponent = () => {
         setWord(w)
         console.log(w)
     }, [playCount]);
+    useEffect(() => {
+        document.documentElement.style.setProperty("--vh", window.innerHeight * 0.01 + 'px')
+    }, []);
     const submitGuess = (guess: LowercaseAlphaString[]) => {
         setGuesses((prev) => [...prev, guess]);
         guess.forEach((char: LowercaseAlphaString, i: number) => {
@@ -192,9 +195,8 @@ const Home: FunctionComponent = () => {
                 if (guess.join('') == word) {
                     setWon(true);
                 }
-            } else {
-                setGuess([]);
             }
+            setGuess([]);
         } else {
             setShakeState('animate-shake');
             setTimeout(() => setShakeState(''), 500);
@@ -230,7 +232,7 @@ const Home: FunctionComponent = () => {
                 <meta name="description" content="WIP" />
                 <link rel="icon" href="/favicon.ico" />
             </Head> */}
-            <main className="flex min-h-screen bg-black antialiased justify-center">
+            <main className="flex h-screen bg-black antialiased justify-center">
                 <div className="container flex flex-col items-center justify-between gap-12 max-w-2xl">
                     <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] font-letters mt-4">
                         Wordle?

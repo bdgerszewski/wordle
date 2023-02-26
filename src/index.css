@@ -45,3 +45,12 @@
 .w-op-key {
   width: 50px;
 }
+.h-screen {
+  height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+  height: calc(var(--vh, 1vh) * 100);
+  @supports (-webkit-appearance:none) {
+    .os-android & {
+      height: calc(100vh - 56px);
+    }
+  };
+}

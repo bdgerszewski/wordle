@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "npx wrangler pages publish dist --project-name=wordle"
+    "deploy-prod": "npx wrangler pages publish dist --project-name=wordle --branch=production"
   },
   "dependencies": {
     "react": "^18.2.0",
