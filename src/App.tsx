@@ -1,78 +1,20 @@
 import './App.css'
 import words from './words.json'
 import React, { useState, FunctionComponent, useEffect } from "react";
+import { Grid } from './components/Grid';
 
-
-type LowercaseAlphaString = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
-type LowercaseAlphaMap = Record<LowercaseAlphaString, KeyProps>;
-type LowerOrEmptyString = LowercaseAlphaString | '';
-
-
-type CellProps = {
-    value: LowerOrEmptyString;
-    bgColor?: string;
-    isCurrent: boolean;
-    shakeState: string;
-};
-type GridProps = {
-    numRows: number;
-    numCols: number;
-    history: LowercaseAlphaString[][];
-    current: LowercaseAlphaString[];
-    word: LowercaseAlphaString[];
-    shakeState: string;
-};
-const Cell: FunctionComponent<CellProps> = ({ value, bgColor, isCurrent, shakeState }) => {
-    const animation = isCurrent ? shakeState : '';
-    return (
-        <div
-            className={`${bgColor} flex h-14 w-14 cursor-default select-none items-center justify-center border border-gray-600 text-3xl font-bold text-white ${animation}`}
-            >
-            {value.toUpperCase()}
-        </div>
-    );
-};
-const getColor = (word: LowercaseAlphaString[], guess: LowercaseAlphaString[] | undefined, index: number) => {
-    if (!guess) {
-        return KeyColor.DefaultCell;
-    }
-    const occurencesOfCharInWord = word.filter((char) => char === guess[index]).length;
-    const occurencesOfCharInGuess = guess.filter((char) => char === guess[index]).length;
-    const numExactMatches = word.filter((char, i) => char === guess[i] && guess[i] === guess[index]).length;
-    const numYellowsToShow = Math.min(occurencesOfCharInWord, occurencesOfCharInGuess) - numExactMatches;
-    const yellowIndices: number[] = [];
-    guess.forEach((char, i) => {
-        if (char === guess[index] && word.includes(char) && char !== word[i]) {
-            yellowIndices.push(i);
-        }
-    })
-    const yellowIndicesToShow = yellowIndices.slice(0, numYellowsToShow);
-    if (word[index] === guess[index]) {
-        return KeyColor.Exact;
-    } else if (yellowIndicesToShow.includes(index)) {
-        return KeyColor.Present;
-    } else {
-        return KeyColor.DefaultCell;
-    }
-}
-
-const Grid: FunctionComponent<GridProps> = ({ numRows, numCols, history, current, word, shakeState }) => {
-    const grid = [];
-    const values = [...history, current];
-    for (let r = 0; r < numRows; ++r) {
-        const row = [];
-        for (let c = 0; c < numCols; ++c) {
-            row.push(
-                <Cell key={`${r}-${c}`} value={values[r]?.[c] ?? ''} bgColor={r+1 == values.length ? KeyColor.DefaultCell : getColor(word, values[r], c) } shakeState={shakeState} isCurrent={r+1 == values.length}/>
-            );
-        }
-        grid.push(row);
-    }
-
-    return <div className={`grid grid-cols-5 grid-rows-6 gap-1.5 justify-end`}>{grid}</div>
+type KeyboardProps = {
+    keyMap: LowercaseAlphaMap;
+    backspaceHandler: () => void;
+    enterHandler: () => void;
+    setGuess: (guess: LowercaseAlphaString) => void;
 };
 
-enum KeyColor {
+export type LowercaseAlphaString = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
+export type LowercaseAlphaMap = Record<LowercaseAlphaString, KeyProps>;
+export type LowerOrEmptyString = LowercaseAlphaString | '';
+
+export enum KeyColor {
     DefaultKey = "bg-gray-500",
     DefaultCell = "bg-black",
     NotPresent = "bg-gray-800",
@@ -80,26 +22,17 @@ enum KeyColor {
     Exact = "bg-green-700",
 }
 
-type KeyProps = {
+export type KeyProps = {
     color: KeyColor;
 };
-
-type KeyboardProps = {
-    keyMap: LowercaseAlphaMap;
-    keyMapUpdater: (char: LowercaseAlphaString, color: KeyColor) => void;
-    backspaceHandler: () => void;
-    enterHandler: () => void;
-    setGuess: (guess: LowercaseAlphaString) => void;
-  };
 
 const lowerCaseAlphaKeyRows: LowercaseAlphaString[][] = [
     ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
     ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
     ["z", "x", "c", "v", "b", "n", "m"],
 ];
-const Keyboard: FunctionComponent<KeyboardProps> = ({keyMap, keyMapUpdater, backspaceHandler, enterHandler, setGuess}) => {
-    // import a file from the resources folder named words.txt
-    const buttonBaseClass = "h-14 rounded font-letters text-base font-bold text-white transition duration-150 ease-in-out"
+const Keyboard: FunctionComponent<KeyboardProps> = ({keyMap, backspaceHandler, enterHandler, setGuess}) => {
+    const buttonBaseClass = "h-12 rounded font-letters text-base font-bold text-white transition duration-150 ease-in-out"
     const backButton = (
         <button key={'back'} className={`flex-1.5 text-4xl ${KeyColor.DefaultKey} mr-1.5 ${buttonBaseClass}`} onClick={backspaceHandler}>
             ←
@@ -128,7 +61,7 @@ const Keyboard: FunctionComponent<KeyboardProps> = ({keyMap, keyMapUpdater, back
     ))
 
     return (
-        <div className="flex w-full flex-col items-center justify-end ">
+        <div className="flex w-full flex-col items-center justify-end mb-5">
             {buttons}
         </div>
     );
@@ -203,7 +136,7 @@ const Home: FunctionComponent = () => {
         }
     }
     const setGuessSafe = (nextChar: LowercaseAlphaString) => {
-        if (guess.length <= wordLength) {
+        if (guess.length < wordLength) {
             setGuess((prev) => [...prev, nextChar]);
         }
     }
@@ -227,12 +160,7 @@ const Home: FunctionComponent = () => {
 
     return (
         <>
-            {/* <Head>
-                <title>{"Ben's Wordle Clone"}</title>
-                <meta name="description" content="WIP" />
-                <link rel="icon" href="/favicon.ico" />
-            </Head> */}
-            <main className="flex h-screen bg-black antialiased justify-center">
+            <main className="flex h-screen bg-black antialiased justify-center overflow-hidden">
                 <div className="container flex flex-col items-center justify-between gap-12 max-w-2xl">
                     <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] font-letters mt-4">
                         Wordle?
@@ -245,7 +173,7 @@ const Home: FunctionComponent = () => {
                         word={word ? [...word] as LowercaseAlphaString[] : [] as LowercaseAlphaString[]}
                         shakeState={shakeState}
                     />
-                    <Keyboard keyMap={keyMap} keyMapUpdater={updateKeyInMap} backspaceHandler={backspace} enterHandler={enter} setGuess={setGuessSafe}/>
+                    <Keyboard keyMap={keyMap} backspaceHandler={backspace} enterHandler={enter} setGuess={setGuessSafe}/>
                 </div>
                 {done && <Modal message={won ? "You win!" : `You lose 😥 (The word was ${word})`} onClick={reset} />}
             </main>
