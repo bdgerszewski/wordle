@@ -41,14 +41,12 @@ const getColor = (word: LowercaseAlphaString[], guess: LowercaseAlphaString[] | 
     const numExactMatches = word.filter((char, i) => char === guess[i] && guess[i] === guess[index]).length;
     const numYellowsToShow = Math.min(occurencesOfCharInWord, occurencesOfCharInGuess) - numExactMatches;
     const yellowIndices: number[] = [];
-    console.log({word, guess, index, occurencesOfCharInWord, occurencesOfCharInGuess, numExactMatches, numYellowsToShow})
     guess.forEach((char, i) => {
         if (char === guess[index] && word.includes(char) && char !== word[i]) {
             yellowIndices.push(i);
         }
     })
     const yellowIndicesToShow = yellowIndices.slice(0, numYellowsToShow);
-    console.log({yellowIndices, yellowIndicesToShow})
     if (word[index] === guess[index]) {
         return KeyColor.Exact;
     } else if (yellowIndicesToShow.includes(index)) {
@@ -136,26 +134,28 @@ const Keyboard: FunctionComponent<KeyboardProps> = ({keyMap, keyMapUpdater, back
     );
 };
 
-const Modal: FunctionComponent<{message: string}> = ({ message }) => {
+const Modal: FunctionComponent<{ message: string, onClick: () => void }> = ({ message, onClick }) => {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="fixed inset-0 bg-gray-800 opacity-75"></div>
-        <div className="bg-white rounded-lg p-8 z-50">
-          <p className="text-lg font-bold">{message}</p>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center">
+            <div className="fixed inset-0 bg-gray-800 opacity-50"></div>
+            <div className="bg-white rounded-lg p-8 z-50 justify-center flex flex-col">
+                <p className="text-lg font-bold">{message}</p>
+                <button onClick={onClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mx-auto  flex-1">
+                    Play again
+                </button>
+            </div>
         </div>
-      </div>
     );
-  };
+};
 
 
 const Home: FunctionComponent = () => {
     const wordLength = 5;
     const numGuesses = 6;
-    
-    const [keyMap, setKeyMap] = useState<Record<LowercaseAlphaString, KeyProps>>(lowerCaseAlphaKeyRows
+    const initKeyMap = lowerCaseAlphaKeyRows
         .flat()
-        .reduce((map, char) => ({ ...map, [char]: {color: KeyColor.DefaultKey} }), {} as Record<LowercaseAlphaString, KeyProps>)
-    );
+        .reduce((map, char) => ({ ...map, [char]: {color: KeyColor.DefaultKey} }), {} as Record<LowercaseAlphaString, KeyProps>);
+    const [keyMap, setKeyMap] = useState<Record<LowercaseAlphaString, KeyProps>>(initKeyMap);
     const [guess, setGuess] = useState<LowercaseAlphaString[]>([]);
     const [guesses, setGuesses] = useState<LowercaseAlphaString[][]>([]);
     const [wordList, setWordList] = useState<LowercaseAlphaString[]>([]);
@@ -163,13 +163,14 @@ const Home: FunctionComponent = () => {
     const [done, setDone] = useState<boolean>(false);
     const [won, setWon] = useState<boolean>(false);
     const [word, setWord] = useState<LowercaseAlphaString>();
+    const [playCount, setPlayCount] = useState<number>(0);
     const properLengthWords = words.filter(word => word.length == wordLength);
     useEffect(() => {
         setWordList(properLengthWords as LowercaseAlphaString[]);
         const w = properLengthWords[Math.floor(Math.random() * properLengthWords.length)] as LowercaseAlphaString;
         setWord(w)
         console.log(w)
-    }, []);
+    }, [playCount]);
     const submitGuess = (guess: LowercaseAlphaString[]) => {
         setGuesses((prev) => [...prev, guess]);
         guess.forEach((char: LowercaseAlphaString, i: number) => {
@@ -213,6 +214,14 @@ const Home: FunctionComponent = () => {
         })
     }
 
+    const reset = () => {
+        setGuess([]);
+        setGuesses([]);
+        setKeyMap(initKeyMap);
+        setDone(false);
+        setWon(false);
+        setPlayCount((prev) => prev + 1);
+    }
 
     return (
         <>
@@ -221,8 +230,8 @@ const Home: FunctionComponent = () => {
                 <meta name="description" content="WIP" />
                 <link rel="icon" href="/favicon.ico" />
             </Head> */}
-            <main className="flex min-h-screen bg-black antialiased">
-                <div className="container flex flex-col items-center justify-between gap-12 ">
+            <main className="flex min-h-screen bg-black antialiased justify-center">
+                <div className="container flex flex-col items-center justify-between gap-12 max-w-2xl">
                     <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] font-letters mt-4">
                         Wordle?
                     </h1>
@@ -236,7 +245,7 @@ const Home: FunctionComponent = () => {
                     />
                     <Keyboard keyMap={keyMap} keyMapUpdater={updateKeyInMap} backspaceHandler={backspace} enterHandler={enter} setGuess={setGuessSafe}/>
                 </div>
-                {done && <Modal message={won ? "You win!" : `You lose 😥 (The word was ${word})`} />}
+                {done && <Modal message={won ? "You win!" : `You lose 😥 (The word was ${word})`} onClick={reset} />}
             </main>
         </>
     );

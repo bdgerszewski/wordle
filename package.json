@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npx wrangler pages publish dist --project-name=wordle"
   },
   "dependencies": {
     "react": "^18.2.0",
