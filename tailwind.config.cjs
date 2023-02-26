@@ -5,9 +5,13 @@ module.exports = {
         "./index.html",
     ],
     theme: {
+      fontFamily: {
+        'letters': ['courier-new', 'monospace']
+      },
       extend: {
         flex: {
-            '1.5': '1.5 1.5 0%',
+          '0.5': '0.5 0.5 0%',  
+          '1.5': '1.5 1.5 0%',
         }
       },
     },
